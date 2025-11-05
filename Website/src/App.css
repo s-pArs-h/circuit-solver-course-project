@@ -1,0 +1,309 @@
+/* --- Global Styles --- */
+    body, html, #root {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100vh; /* Use vh for full viewport height */
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      overflow: hidden; /* Prevent scrolling */
+      background-color: #f3f4f6; /* gray-100 */
+    }
+
+    /* --- Main container & Grid Background --- */
+    .main {
+      width: 100%;
+      height: 100%;
+      position: relative; /* Context for absolute children */
+      cursor: crosshair;
+      
+      /* --- Grid background --- */
+      background-color: #ffffff;
+      background-image: radial-gradient(#d1d5db 1px, transparent 1px); /* gray-300 dots */
+      background-size: 16px 16px; /* Must match GRID_SIZE */
+      
+      /* Center the "Hello World" text */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .main h1 {
+      color: #d1d5db; /* gray-300 */
+      font-size: 4rem;
+      font-weight: 800;
+      user-select: none;
+      z-index: 0; /* Behind UI elements */
+    }
+
+    /* --- Top UI Controls --- */
+    .top-controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      display: flex;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .ui-button {
+      padding: 8px 16px;
+      background-color: #ffffff;
+      border: 1px solid #d1d5db; /* gray-300 */
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151; /* gray-700 */
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: all 0.1s ease-in-out;
+    }
+    .ui-button:hover {
+      background-color: #f9fafb; /* gray-50 */
+      border-color: #9ca3af; /* gray-400 */
+    }
+
+    /* --- Base Panel Style --- */
+    .panel {
+      position: absolute;
+      top: 64px; /* Below the top controls */
+      left: 16px;
+      background-color: #ffffff;
+      border: 1px solid #d1d5db; /* gray-300 */
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      z-index: 10;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .panel h3 {
+      margin: 0 0 12px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827; /* gray-900 */
+    }
+
+    /* --- NEW: Component Panel --- */
+    .component-panel {
+      width: 200px; /* Wider for component names */
+    }
+
+    .component-swatches {
+      display: flex;
+      flex-direction: column; /* Stack buttons vertically */
+      gap: 8px; /* Space between buttons */
+    }
+
+    .component-swatch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 10px;
+      border: 1px solid #d1d5db; /* gray-300 */
+      border-radius: 6px;
+      background-color: #fff;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.875rem;
+      width: 100%;
+      transition: background-color 0.1s ease;
+    }
+
+    .component-swatch:hover {
+      background-color: #f9fafb; /* gray-50 */
+    }
+
+    .component-swatch-color {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%; /* Circle */
+      border: 2px solid #fff;
+      /* Use box-shadow for inner/outer borders */
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15); 
+      transition: box-shadow 0.1s ease;
+    }
+
+    /* Selected state for the color blob */
+    .component-swatch-color[data-selected="true"] {
+      box-shadow: 0 0 0 3px #3b82f6; /* Blue-500 ring to show selection */
+    }
+
+    .component-swatch-name {
+      font-weight: 500;
+      color: #374151; /* gray-700 */
+    }
+
+
+    /* --- Export Panel --- */
+    .export-panel pre {
+      background-color: #f3f4f6; /* gray-100 */
+      border: 1px solid #e5e7eb; /* gray-200 */
+      border-radius: 4px;
+      padding: 12px;
+      font-size: 0.875rem;
+      color: #1f2937; /* gray-800 */
+      white-space: pre-wrap; /* Wrap long lines */
+      word-break: break-all;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .copy-button {
+      padding: 6px 12px;
+      background-color: #3b82f6; /* blue-500 */
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 12px;
+      transition: background-color 0.1s ease;
+    }
+    .copy-button:hover {
+      background-color: #2563eb; /* blue-600 */
+    }
+
+    .copy-success {
+      font-size: 0.875rem;
+      color: #16a34a; /* green-600 */
+      margin-left: 8px;
+    }
+
+    /* --- Import Panel --- */
+    .import-panel textarea {
+      width: 100%;
+      box-sizing: border-box; /* Include padding/border in width */
+      min-height: 150px;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db; /* gray-300 */
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.875rem;
+      margin-bottom: 12px;
+      resize: vertical;
+    }
+    .import-panel textarea:focus {
+      outline: none;
+      border-color: #3b82f6; /* blue-500 */
+      box-shadow: 0 0 0 1px #3b82f6;
+    }
+
+    .load-button {
+      width: 100%;
+      padding: 8px 12px;
+      background-color: #16a34a; /* green-600 */
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.1s ease;
+    }
+    .load-button:hover {
+      background-color: #15803d; /* green-700 */
+    }
+
+    .import-error {
+      font-size: 0.875rem;
+      color: #dc2626; /* red-600 */
+      margin: 8px 0 0 0;
+    }
+
+
+    /* --- Line (Component) Info Popup --- */
+    .line-popup {
+      position: fixed; /* Use fixed positioning to place near cursor */
+      background-color: #ffffff;
+      border: 1px solid #d1d5db; /* gray-300 */
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      z-index: 20;
+      width: 180px;
+    }
+
+    .line-popup-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .line-popup-color-swatch {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .line-popup-component-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151; /* gray-700 */
+    }
+
+    /* --- NEW: Value Input --- */
+    .line-popup-value {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb; /* gray-200 */
+    }
+
+    .line-popup-value label {
+      font-size: 0.875rem;
+      color: #4b5563; /* gray-600 */
+      margin-right: 8px;
+    }
+
+    .line-popup-value input {
+      width: 60px;
+      padding: 4px 6px;
+      border: 1px solid #d1d5db; /* gray-300 */
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    .line-popup-value input:focus {
+      outline: none;
+      border-color: #3b82f6; /* blue-500 */
+      box-shadow: 0 0 0 1px #3b82f6;
+    }
+    .line-popup-value input:disabled {
+      background-color: #f3f4f6; /* gray-100 */
+      color: #9ca3af; /* gray-400 */
+      cursor: not-allowed;
+      border-color: #e5e7eb; /* gray-200 */
+    }
+
+    /* --- Delete Button --- */
+    .delete-button {
+      width: 100%;
+      padding: 6px 12px;
+      margin-top: 12px;
+      background-color: #ef4444; /* red-500 */
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.1s ease;
+    }
+    .delete-button:hover {
+      background-color: #dc2626; /* red-600 */
+    }
+
+
+    /* --- Hidden Textarea for Copying --- */
+    .hidden-textarea {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      opacity: 0;
+      pointer-events: none;
+    }
