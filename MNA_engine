@@ -1,0 +1,96 @@
+#returns 1) matrix of all nodes and corresponding voltages
+#        2) matrix of current (node 1, node 2, current from node 1 to node2
+#        3) if the solution converges or not. 0 => converges & -1 => does not converge 
+
+
+#input Example 
+#elements wali file import kar lena jo parse kar raha hai. mai jo mai elements use kar raha use bhi upload kar deta hun
+import numpy as np
+import re
+
+def update_dynamic_history(elements, x_prev, delta_t):
+    """Updates the previous voltage and current for C and L for the next time step."""
+    for elem in elements:
+        if isinstance(elem, (Capacitor, Inductor)):
+            v_a = x_prev[elem.n1.index]
+            v_b = x_prev[elem.n2.index]
+            elem.prev_voltage_diff = v_a - v_b
+
+            if isinstance(elem, Capacitor):
+                G_eq = 2.0 * elem.value / delta_t
+                I_eq = G_eq * elem.prev_voltage_diff + elem.prev_current
+                elem.prev_current = G_eq * elem.prev_voltage_diff - I_eq
+            elif isinstance(elem, Inductor):
+                G_eq = delta_t / (2.0 * elem.value)
+                I_eq = elem.prev_current + G_eq * elem.prev_voltage_diff
+                elem.prev_current = G_eq * elem.prev_voltage_diff + I_eq
+
+
+def simulate(elements_named, nodes_map, n_equations, t_end, delta_t):
+    """Runs the full transient simulation and collects results."""
+
+    num_nodes = len(nodes_map)
+    n = n_equations
+
+    voltage_steps = []
+    current_steps = []
+
+    # Initialize state vector (x_prev)
+    x_prev = np.zeros(n)
+    for node_obj in nodes_map.values():
+        x_prev[node_obj.index] = node_obj.voltage
+
+    current_time = 0.0
+    convergence_status = 1
+    elements = [e for n, e in elements_named]
+
+    # Calculate the number of steps needed
+    num_steps = int(np.floor(t_end / delta_t)) + 1
+
+    for step_count in range(num_steps):
+        current_time = step_count * delta_t
+        x_guess = np.copy(x_prev)
+        converged_in_step = False
+
+        # --- Newton-Raphson Loop ---
+        for iter_count in range(MAX_ITERATIONS):
+            j = np.zeros((n, n))
+            f = np.zeros(n)
+
+            for name, elem in elements_named:
+                elem.stamp(j, f, x_guess, delta_t, current_time)
+
+            delta_x, _, _, _ = np.linalg.lstsq(j, -f, rcond=None)
+            x_guess += delta_x
+
+            norm = np.linalg.norm(delta_x)
+            if norm < TOLERANCE:
+                converged_in_step = True
+                break
+
+        if not converged_in_step:
+            convergence_status = -1
+            # print(f"Warning: NR failed at t={current_time:.4e}s. Norm: {norm:.2e}")
+
+        # --- Record Results (Use last guess, even if non-converged) ---
+        x_final = x_guess
+
+        # 1. Node Voltages
+        node_voltages = x_final[:num_nodes]
+        voltage_steps.append(node_voltages)
+
+        # 2. Branch Currents
+        branch_currents = []
+        for name, elem in elements_named:
+            branch_currents.append(elem.calculate_current(x_final, delta_t, current_time))
+        current_steps.append(np.array(branch_currents))
+
+        # --- Post-NR Updates ---
+        x_prev = x_final
+        update_dynamic_history(elements, x_prev, delta_t)
+
+    # Convert lists of arrays into final NumPy matrices
+    voltage_matrix = np.array(voltage_steps)
+    current_matrix = np.array(current_steps)
+
+    return voltage_matrix, current_matrix, convergence_status
